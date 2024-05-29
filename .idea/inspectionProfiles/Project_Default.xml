@@ -1,0 +1,27 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="2">
+            <item index="0" class="java.lang.String" itemvalue="PyQt5" />
+            <item index="1" class="java.lang.String" itemvalue="typing_extensions" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="orientation_checklist.views.exe_dynamic_query_new" />
+          <option value="kktproject.user.urls.user" />
+          <option value="kktproject.user.urls.*" />
+          <option value="kktproject.user.views.user" />
+          <option value="common_mr_pr_po_search_details.mr_pr_po_search_views.new_get_common_search_details" />
+          <option value="common_mr_pr_po_search_details.urls.mr_pr_po_search" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
