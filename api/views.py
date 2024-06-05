@@ -1,18 +1,40 @@
+from django.db.migrations import serializer
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from book.models import Author, UserTab, Review, Book
+from api.models import Author, UserTab, Review, Book
 from datetime import datetime
+from django.contrib.auth import authenticate
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework import serializers
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from datetime import datetime
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from api.renderers import UserRenderer
+
+
 
 class Cr_user(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    print("----------1111----------")
+    # authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
+    # renderer_classes = [UserRenderer]
+    print("----------11112----------")
     def post(self, request):
+        print("----------cr_user----------")
         form = request.data
         full_name = form.get('full_name')
         mobile = form.get('mobile')
@@ -28,7 +50,7 @@ class Cr_user(APIView):
         else:
             end_date_new = None
         username = form.get('username')
-        pswrd = form.get('pswrd')
+        password = form.get('password')
         email = form.get('email')
         result = {}
         if username is None:
@@ -39,7 +61,7 @@ class Cr_user(APIView):
 
         try:
             author = UserTab.objects.create_user(username=username,
-                                              password=pswrd,
+                                              password=password,
                                               email=email,
                                               full_name=full_name,
                                               mobile=mobile,
@@ -129,3 +151,49 @@ class Cr_review(APIView):
             return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
+class LoginApi(APIView):
+    def post(self, request):
+        try:
+            data = request.data
+            serializer = LoginSerializer(data=data)
+            if serializer.is_valid():
+                username = serializer.validated_data['username']
+                password = serializer.validated_data['password']
+                user = authenticate(username=username, password=password)
+
+                if not user:
+                    return Response({'error': True, 'error_code': 400, 'error_description': 'Invalid Password'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                if user.is_active is False:
+                    return Response({'error': True, 'error_code': 400, 'error_description': 'Account Not activated'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    refresh = RefreshToken.for_user(user)
+                    return Response({
+                        'refresh': str(refresh),
+                        'access': str(refresh.access_token),
+                    })
+
+            else:
+                return Response({'error': True, 'error_code': 400, 'error_description': 'Invalid User'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            print(e)
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+
+class UserProfileView(APIView):
+    renderer_classes = [UserRenderer]
+    permission_classes = [IsAuthenticated]
+    def get(self,request, format=None):
+        serializer = UserProfileSerializer(request.user)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserTab
+        fields = ['username', 'password']
