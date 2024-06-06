@@ -28,25 +28,21 @@ from api.renderers import UserRenderer
 
 
 class Cr_user(APIView):
-    print("----------1111----------")
-    # authentication_classes = [JWTAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    # renderer_classes = [UserRenderer]
-    print("----------11112----------")
     def post(self, request):
-        print("----------cr_user----------")
         form = request.data
         full_name = form.get('full_name')
         mobile = form.get('mobile')
         date_format = '%Y-%m-%d'
         start_date = form.get('start_date')
         if start_date:
-            start_date_new = datetime.strptime(str(start_date), date_format)
+            start_date_new = datetime.strptime(start_date, '%d-%m-%Y').strftime('%Y-%m-%d')
         else:
             start_date_new = None
         end_date = form.get('end_date')
         if end_date:
-            end_date_new = datetime.strptime(str(end_date), date_format)
+            end_date_new = datetime.strptime(end_date, '%d-%m-%Y').strftime('%Y-%m-%d')
         else:
             end_date_new = None
         username = form.get('username')
@@ -197,3 +193,35 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserTab
         fields = ['username', 'password']
+
+
+class ListAuthors(APIView):
+    def get(self, request,id=0):
+        if id==0:
+            queryset = Author.objects.all()
+        else:
+            queryset = Author.objects.filter(au_id=id)
+        result = {}
+        if not queryset:
+            result = {}
+            result['error'] = False
+            result['error_code'] = 200
+            result['error_description'] = 'No Author found'
+            result['action_list'] = ''
+            return Response(result, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            listt = []
+            for obj in queryset:
+                dictt = {}
+                dictt['Author_ID'] = obj.au_id
+                dictt['Author_CODE'] = obj.au_name
+                dictt['Author_NAME'] = obj.au_bio
+
+                listt.append(dictt)
+
+            result['error'] = False
+            result['error_code'] = 200
+            result['error_description'] = 'Author List'
+            result['action_list'] = listt
+
+            return Response(result, status=status.HTTP_201_CREATED)

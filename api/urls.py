@@ -5,10 +5,14 @@ app_name = 'api'
 
 urlpatterns = [
 
-    path('cr_user/', Cr_user.as_view(), name='cr_user'),
+    path('register/', Cr_user.as_view(), name='register'),
     path('cr_auth', Cr_auth.as_view(), name='cr_auth'),
     path('cr_book', Cr_book.as_view(), name='cr_book'),
     path('cr_review', Cr_review.as_view(), name='cr_review'),
-    path('loginapi', LoginApi.as_view(), name='loginapi'),
+    path('token/', LoginApi.as_view(), name='token'),
     path('profile', UserProfileView.as_view(), name='profile'),
+
+    path('authors/<int:id>', ListAuthors.as_view(), name="authors"),
+    path('authors/', ListAuthors.as_view(), name="authors"),
+
 ]
